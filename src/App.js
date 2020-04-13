@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react';
 import './App.css';
 
@@ -34,7 +33,7 @@ let fakeServerData = {
         ]
       },
       {
-        name: 'Playlist - yeah!',
+        name: 'Playlist!',
         songs: [
           {name: 'Beat It', duration: 1345}, 
           {name: 'Cannelloni Makaroni', duration: 1236},
@@ -76,7 +75,8 @@ class Filter extends Component {
     return (
       <div style={defaultStyle}>
         <img/>
-        <input type="text"/>
+        <input type="text" onKeyUp={event => 
+          this.props.onTextChange(event.target.value)}/>
       </div>
     );
   }
@@ -102,7 +102,10 @@ class Playlist extends Component {
 class App extends Component {
   constructor() {
     super();
-    this.state = {serverData: {}}
+    this.state = {
+      serverData: {},
+      filterString: ''
+    }
   }
   componentDidMount() {
     setTimeout(() => {
@@ -110,7 +113,11 @@ class App extends Component {
     }, 1000);
   }
   render() {
-
+    let playlistToRender = this.state.serverData.user ? this.state.serverData.user.playlists
+      .filter(playlist =>
+        playlist.name.toLowerCase().includes(
+          this.state.filterString.toLowerCase())
+    ) : []
     return (
       <div className="App">
         {this.state.serverData.user ?
@@ -118,10 +125,12 @@ class App extends Component {
           <h1 style={{...defaultStyle, 'font-size': '54px'}}>
             {this.state.serverData.user.name}'s Playlists
           </h1>
-          <PlaylistCounter playlists={this.state.serverData.user.playlists}/>
-          <HoursCounter playlists={this.state.serverData.user.playlists}/>
-          <Filter/>
-          {this.state.serverData.user.playlists.map(playlist => 
+          <PlaylistCounter playlists={playlistToRender}/>
+          <HoursCounter playlists={playlistToRender}/>
+          <Filter onTextChange={text => {
+              this.setState({filterString: text})
+            }}/>
+          {playlistToRender.map(playlist => 
             <Playlist playlist={playlist} />
           )}
         </div> : <h1 style={defaultStyle}>Loading...</h1>
@@ -132,5 +141,3 @@ class App extends Component {
 }
 
 export default App;
-
-
